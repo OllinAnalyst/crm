@@ -16,11 +16,6 @@ const defaultStages = [
   "Dumpster",
 ];
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
-
 const stageColors = {
   "Inbound Deals": "bg-gray-100",
   "Initial Call": "bg-blue-100",
@@ -40,6 +35,11 @@ const initialDeals = [
   { company: "Link X", stage: "Memo" },
   { company: "Dappier", stage: "Memo" },
 ];
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 export default function App() {
   const [deals, setDeals] = useState(initialDeals);
