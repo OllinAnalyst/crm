@@ -1,98 +1,122 @@
-import React, { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const defaultStages = [
+  "Inbound Deals",
+  "Initial Call",
+  "Deal Review",
+  "Partner Call",
+  "Memo",
+  "IC",
+  "Investment",
+  "Freezer",
+  "Dumpster",
+];
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
-const stages = ["Inbound Deals", "Initial Call", "Deal Review", "Partner Call", "Memo", "IC", "Investment", "Freezer", "Dumpster"];
+const stageColors = {
+  "Inbound Deals": "bg-gray-100",
+  "Initial Call": "bg-blue-100",
+  "Deal Review": "bg-yellow-100",
+  "Partner Call": "bg-orange-100",
+  Memo: "bg-green-100",
+  IC: "bg-indigo-100",
+  Investment: "bg-purple-100",
+  Freezer: "bg-neutral-200",
+  Dumpster: "bg-red-100",
+};
 
-export default function CRMBoard() {
-  const [deals, setDeals] = useState([]);
-  const [formData, setFormData] = useState({ company: "", stage: "Inbound Deals", notes: "" });
+const initialDeals = [
+  { company: "Yipy", stage: "Initial Call" },
+  { company: "Cashmere", stage: "IC" },
+  { company: "Annie", stage: "Memo" },
+  { company: "Link X", stage: "Memo" },
+  { company: "Dappier", stage: "Memo" },
+];
 
-  useEffect(() => {
-    const fetchDeals = async () => {
-      const { data } = await supabase.from("deals").select("*");
-      setDeals(data || []);
-    };
-    fetchDeals();
-  }, []);
+export default function App() {
+  const [deals, setDeals] = useState(initialDeals);
+  const [stages, setStages] = useState(defaultStages);
+  const [activeStage, setActiveStage] = useState("All");
 
-  const addDeal = async () => {
-    const { data } = await supabase.from("deals").insert([formData]).select();
-    if (data) {
-      setDeals((prev) => [...prev, ...data]);
-      setFormData({ company: "", stage: "Inbound Deals", notes: "" });
-    }
+  const handleStageChange = (index, newStage) => {
+    const updatedDeals = [...deals];
+    updatedDeals[index].stage = newStage;
+    setDeals(updatedDeals);
   };
 
-  const updateDeal = async (id, field, value) => {
-    await supabase.from("deals").update({ [field]: value }).eq("id", id);
-    setDeals((prev) => prev.map((deal) => (deal.id === id ? { ...deal, [field]: value } : deal)));
-  };
-
-  const deleteDeal = async (id) => {
-    await supabase.from("deals").delete().eq("id", id);
-    setDeals((prev) => prev.filter((deal) => deal.id !== id));
-  };
+  const filteredDeals = activeStage === "All" ? deals : deals.filter((deal) => deal.stage === activeStage);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">VC CRM</h1>
-      <div className="mb-4 space-x-2">
-        <input
-          value={formData.company}
-          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-          placeholder="Company"
-          className="border px-2 py-1"
-        />
-        <select
-          value={formData.stage}
-          onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
-          className="border px-2 py-1"
-        >
-          {stages.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-        <button onClick={addDeal} className="bg-blue-600 text-white px-4 py-1 rounded">
-          Add Deal
-        </button>
-      </div>
-      <div className="space-y-4">
-      {deals.map((deal) => (
-  <div key={deal.id} className="border p-4 rounded bg-white shadow space-y-2">
-    <input
-      defaultValue={deal.company}
-      onBlur={(e) => updateDeal(deal.id, "company", e.target.value)}
-      className="border-b w-full text-lg font-semibold"
-    />
-    <select
-      value={deal.stage}
-      onChange={(e) => updateDeal(deal.id, "stage", e.target.value)}
-      className="border px-2 py-1 w-full"
-    >
-      {stages.map((s) => (
-        <option key={s}>{s}</option>
-      ))}
-    </select>
-    <textarea
-      defaultValue={deal.notes}
-      onBlur={(e) => updateDeal(deal.id, "notes", e.target.value)}
-      className="border w-full"
-      placeholder="Notes"
-    />
-    <button
-      onClick={() => deleteDeal(deal.id)}
-      className="bg-red-500 text-white px-4 py-1 rounded"
-    >
-      Delete
-    </button>
-  </div>
-))}
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">VC Deal Tracker</h1>
 
+      <Tabs defaultValue="All" onValueChange={setActiveStage} className="mb-4">
+        <TabsList className="flex flex-wrap gap-2">
+          <TabsTrigger value="All">All</TabsTrigger>
+          {stages.map((stage, idx) => (
+            <TabsTrigger key={idx} value={stage}>
+              {stage}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
+      <div className="grid grid-cols-1 gap-4">
+        {filteredDeals.map((deal, idx) => (
+          <Card
+            key={idx}
+            className={`flex items-center justify-between p-4 rounded-xl shadow-md ${stageColors[deal.stage]}`}
+          >
+            <CardContent className="w-full flex items-center justify-between gap-4">
+              <Input
+                className="w-1/5"
+                defaultValue={deal.company}
+                onChange={(e) => {
+                  const updated = [...deals];
+                  updated[idx].company = e.target.value;
+                  setDeals(updated);
+                }}
+              />
+              <Select
+                value={deal.stage}
+                onValueChange={(value) => handleStageChange(idx, value)}
+              >
+                <SelectTrigger className="w-1/5" />
+                <SelectContent>
+                  {stages.map((stage, sidx) => (
+                    <SelectItem key={sidx} value={stage}>
+                      {stage}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select className="w-1/5">
+                <SelectTrigger />
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="Scout A">Scout A</SelectItem>
+                  <SelectItem value="Scout B">Scout B</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select className="w-1/5">
+                <SelectTrigger />
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="Partner X">Partner X</SelectItem>
+                  <SelectItem value="Partner Y">Partner Y</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
