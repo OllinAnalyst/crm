@@ -10,4 +10,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 );
 
 console.log("Main loaded");
-
