@@ -62,32 +62,37 @@ export default function CRMBoard() {
         </button>
       </div>
       <div className="space-y-4">
-        {deals.map((deal) => (
-          <div key={deal.id} className="border p-4 rounded bg-white shadow">
-            <input
-              defaultValue={deal.company}
-              onBlur={(e) => updateDeal(deal.id, "company", e.target.value)}
-              className="border-b w-full mb-2"
-            />
-            <select
-              value={deal.stage}
-              onChange={(e) => updateDeal(deal.id, "stage", e.target.value)}
-              className="border px-2 py-1 w-full mb-2"
-            >
-              {stages.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-            <textarea
-              defaultValue={deal.notes}
-              onBlur={(e) => updateDeal(deal.id, "notes", e.target.value)}
-              className="border w-full mb-2"
-            />
-            <button onClick={() => deleteDeal(deal.id)} className="bg-red-500 text-white px-4 py-1 rounded">
-              Delete
-            </button>
-          </div>
-        ))}
+      {deals.map((deal) => (
+  <div key={deal.id} className="border p-4 rounded bg-white shadow space-y-2">
+    <input
+      defaultValue={deal.company}
+      onBlur={(e) => updateDeal(deal.id, "company", e.target.value)}
+      className="border-b w-full text-lg font-semibold"
+    />
+    <select
+      value={deal.stage}
+      onChange={(e) => updateDeal(deal.id, "stage", e.target.value)}
+      className="border px-2 py-1 w-full"
+    >
+      {stages.map((s) => (
+        <option key={s}>{s}</option>
+      ))}
+    </select>
+    <textarea
+      defaultValue={deal.notes}
+      onBlur={(e) => updateDeal(deal.id, "notes", e.target.value)}
+      className="border w-full"
+      placeholder="Notes"
+    />
+    <button
+      onClick={() => deleteDeal(deal.id)}
+      className="bg-red-500 text-white px-4 py-1 rounded"
+    >
+      Delete
+    </button>
+  </div>
+))}
+
       </div>
     </div>
   );
