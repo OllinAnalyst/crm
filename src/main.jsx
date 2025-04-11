@@ -8,3 +8,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <CRMBoard />
   </React.StrictMode>
 );
+
+console.log("Main loaded");
+

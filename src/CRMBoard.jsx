@@ -1,10 +1,17 @@
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const defaultStages = [
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectItem } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+
+// ✅ Configure Supabase client
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
+
+const stages = [
   "Inbound Deals",
   "Initial Call",
   "Deal Review",
@@ -16,104 +23,139 @@ const defaultStages = [
   "Dumpster",
 ];
 
-const stageColors = {
-  "Inbound Deals": "bg-gray-100",
-  "Initial Call": "bg-blue-100",
-  "Deal Review": "bg-yellow-100",
-  "Partner Call": "bg-orange-100",
-  Memo: "bg-green-100",
-  IC: "bg-indigo-100",
-  Investment: "bg-purple-100",
-  Freezer: "bg-neutral-200",
-  Dumpster: "bg-red-100",
-};
+export default function CRMBoard() {
+  const [deals, setDeals] = useState([]);
+  const [newDeal, setNewDeal] = useState({
+    company: "",
+    stage: "Inbound Deals",
+    sourcer: "",
+    partner: "",
+    notes: "",
+  });
 
-const initialDeals = [
-  { company: "Yipy", stage: "Initial Call" },
-  { company: "Cashmere", stage: "IC" },
-  { company: "Annie", stage: "Memo" },
-  { company: "Link X", stage: "Memo" },
-  { company: "Dappier", stage: "Memo" },
-];
+  // ✅ Load deals on mount
+  useEffect(() => {
+    const loadDeals = async () => {
+      const { data, error } = await supabase.from("deals").select("*").order("stage");
+      if (!error) setDeals(data);
+    };
+    loadDeals();
+  }, []);
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
-
-export default function App() {
-  const [deals, setDeals] = useState(initialDeals);
-  const [stages, setStages] = useState(defaultStages);
-  const [activeStage, setActiveStage] = useState("All");
-
-  const handleStageChange = (index, newStage) => {
-    const updatedDeals = [...deals];
-    updatedDeals[index].stage = newStage;
-    setDeals(updatedDeals);
+  // ✅ Add a new deal
+  const addDeal = async () => {
+    const { data, error } = await supabase.from("deals").insert([newDeal]).select();
+    if (!error && data) {
+      setDeals((prev) => [...prev, ...data]);
+      setNewDeal({
+        company: "",
+        stage: "Inbound Deals",
+        sourcer: "",
+        partner: "",
+        notes: "",
+      });
+    }
   };
 
-  const filteredDeals = activeStage === "All" ? deals : deals.filter((deal) => deal.stage === activeStage);
+  // ✅ Update deal field
+  const updateDeal = async (id, field, value) => {
+    await supabase.from("deals").update({ [field]: value }).eq("id", id);
+    setDeals((prev) =>
+      prev.map((d) => (d.id === id ? { ...d, [field]: value } : d))
+    );
+  };
+
+  // ✅ Delete a deal
+  const deleteDeal = async (id) => {
+    await supabase.from("deals").delete().eq("id", id);
+    setDeals((prev) => prev.filter((d) => d.id !== id));
+  };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">VC Deal Tracker</h1>
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-center">VC CRM</h1>
 
-      <Tabs defaultValue="All" onValueChange={setActiveStage} className="mb-4">
-        <TabsList className="flex flex-wrap gap-2">
-          <TabsTrigger value="All">All</TabsTrigger>
-          {stages.map((stage, idx) => (
-            <TabsTrigger key={idx} value={stage}>
-              {stage}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-
-      <div className="grid grid-cols-1 gap-4">
-        {filteredDeals.map((deal, idx) => (
-          <Card
-            key={idx}
-            className={`flex items-center justify-between p-4 rounded-xl shadow-md ${stageColors[deal.stage]}`}
+      {/* Add Deal Form */}
+      <Card className="mb-8 p-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            placeholder="Company"
+            value={newDeal.company}
+            onChange={(e) => setNewDeal({ ...newDeal, company: e.target.value })}
+          />
+          <Select
+            value={newDeal.stage}
+            onChange={(e) => setNewDeal({ ...newDeal, stage: e.target.value })}
           >
-            <CardContent className="w-full flex items-center justify-between gap-4">
+            {stages.map((stage) => (
+              <SelectItem key={stage} value={stage}>
+                {stage}
+              </SelectItem>
+            ))}
+          </Select>
+          <Input
+            placeholder="Sourcer"
+            value={newDeal.sourcer}
+            onChange={(e) => setNewDeal({ ...newDeal, sourcer: e.target.value })}
+          />
+          <Input
+            placeholder="Partner"
+            value={newDeal.partner}
+            onChange={(e) => setNewDeal({ ...newDeal, partner: e.target.value })}
+          />
+          <textarea
+            className="border p-2 col-span-1 sm:col-span-2 rounded"
+            placeholder="Notes"
+            value={newDeal.notes}
+            onChange={(e) => setNewDeal({ ...newDeal, notes: e.target.value })}
+          />
+          <button
+            className="bg-blue-600 text-white rounded px-4 py-2 col-span-1 sm:col-span-2"
+            onClick={addDeal}
+          >
+            Add Deal
+          </button>
+        </CardContent>
+      </Card>
+
+      {/* Deal List */}
+      <div className="space-y-4">
+        {deals.map((deal) => (
+          <Card key={deal.id}>
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                className="w-1/5"
-                defaultValue={deal.company}
-                onChange={(e) => {
-                  const updated = [...deals];
-                  updated[idx].company = e.target.value;
-                  setDeals(updated);
-                }}
+                value={deal.company}
+                onChange={(e) => updateDeal(deal.id, "company", e.target.value)}
               />
               <Select
                 value={deal.stage}
-                onValueChange={(value) => handleStageChange(idx, value)}
+                onChange={(e) => updateDeal(deal.id, "stage", e.target.value)}
               >
-                <SelectTrigger className="w-1/5" />
-                <SelectContent>
-                  {stages.map((stage, sidx) => (
-                    <SelectItem key={sidx} value={stage}>
-                      {stage}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+                {stages.map((stage) => (
+                  <SelectItem key={stage} value={stage}>
+                    {stage}
+                  </SelectItem>
+                ))}
               </Select>
-              <Select className="w-1/5">
-                <SelectTrigger />
-                <SelectContent>
-                  <SelectItem value="">None</SelectItem>
-                  <SelectItem value="Scout A">Scout A</SelectItem>
-                  <SelectItem value="Scout B">Scout B</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select className="w-1/5">
-                <SelectTrigger />
-                <SelectContent>
-                  <SelectItem value="">None</SelectItem>
-                  <SelectItem value="Partner X">Partner X</SelectItem>
-                  <SelectItem value="Partner Y">Partner Y</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                value={deal.sourcer}
+                onChange={(e) => updateDeal(deal.id, "sourcer", e.target.value)}
+              />
+              <Input
+                value={deal.partner}
+                onChange={(e) => updateDeal(deal.id, "partner", e.target.value)}
+              />
+              <textarea
+                className="border p-2 col-span-1 sm:col-span-2 rounded"
+                value={deal.notes}
+                onChange={(e) => updateDeal(deal.id, "notes", e.target.value)}
+              />
+              <button
+                onClick={() => deleteDeal(deal.id)}
+                className="bg-red-600 text-white px-4 py-2 rounded col-span-1 sm:col-span-2"
+              >
+                Delete
+              </button>
             </CardContent>
           </Card>
         ))}
