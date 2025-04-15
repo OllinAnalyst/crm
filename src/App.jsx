@@ -1,26 +1,33 @@
-// src/App.jsx
-import React, { useEffect, useState } from "react";
-import CRMBoard from "./CRMBoard";
-import Login from "./components/auth/Login"; // ✅ FIXED: was '@/components/auth/Login'
-import { supabase } from "./components/auth/supabaseClient"; // ✅ FIXED
 
-export default function App() {
+import React, { useEffect, useState } from "react";
+import { supabase } from "./components/auth/supabaseClient";
+import Login from "./components/auth/Login";
+import CRMBoard from "./CRMBoard";
+
+function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getSession = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      console.log("🧠 Supabase user:", user);
-      console.log("⚠️ Error:", error);
-      setUser(user);
-    };
-    getSession();
-  
-    supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("🔁 Auth state changed:", session);
-      setUser(session?.user || null);
+    // Check for an existing session
+    supabase.auth.getUser().then(({ data, error }) => {
+      console.log("User fetch result:", data, error);
+      setUser(data?.user ?? null);
+      setLoading(false);
     });
-  }, []);  
 
-  return user ? <CRMBoard /> : <Login onLogin={setUser} />;
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  if (loading) return <p className="p-6 text-red-500">Loading...</p>;
+  if (!user) return <Login />;
+
+  return <CRMBoard />;
 }
+
+export default App;
