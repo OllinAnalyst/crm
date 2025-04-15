@@ -34,8 +34,8 @@ const stageOptions = [
   "Freezer",
   "Dumpster",
 ];
-const sourcerOptions = ["Seth", "Cole", "Jameson"];
-const partnerOptions = ["Seth", "Cole", "Jameson"];
+const sourcerOptions = ["Tom", "Stephen", "Ben", "Jameson", "Intern"];
+const partnerOptions = ["Tom", "Stephen", "Ben"];
 
 const stageColors = {
   "Inbound Deals": "bg-blue-100 text-blue-800",
@@ -105,7 +105,9 @@ export default function CRMBoard() {
       );
 
   return (
-    <div className="p-6">
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-2">Ollin Ventures Deal Tracker</h1>
+
       <div className="flex gap-4 mb-4">
         <Select onValueChange={setFilterStage} value={filterStage}>
           <SelectTrigger className="w-[200px]">
