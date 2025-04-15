@@ -38,15 +38,15 @@ const sourcerOptions = ["Tom", "Stephen", "Ben", "Jameson", "Intern"];
 const partnerOptions = ["Tom", "Stephen", "Ben"];
 
 const stageColors = {
-  "Inbound Deals": "bg-blue-100 text-blue-800",
-  "Initial Call": "bg-yellow-100 text-yellow-800",
-  "Deal Review": "bg-purple-100 text-purple-800",
-  "Partner Call": "bg-orange-100 text-orange-800",
-  Memo: "bg-green-100 text-green-800",
-  IC: "bg-red-100 text-red-800",
-  Investment: "bg-indigo-100 text-indigo-800",
-  Freezer: "bg-gray-100 text-gray-800",
-  Dumpster: "bg-black text-white",
+  "Inbound Deals": "bg-lime-300 text-lime-800",
+  "Initial Call": "bg-yellow-300 text-yellow-800",
+  "Deal Review": "bg-orange-300 text-orange-800",
+  "Partner Call": "bg-purple-300 text-purple-800",
+  Memo: "bg-teal-300 text-teal-800",
+  IC: "bg-fuchsia-300 text-fuchsia-800",
+  Investment: "bg-green-300 text-green-800",
+  Freezer: "bg-blue-100 text-blue-800",
+  Dumpster: "bg-red-400 text-red-800",
 };
 
 export default function CRMBoard() {
@@ -103,6 +103,20 @@ export default function CRMBoard() {
         (a, b) =>
           stageOptions.indexOf(a.stage) - stageOptions.indexOf(b.stage)
       );
+
+      const deleteDeal = 
+        async (id) => { 
+          const confirmed = window.confirm("Are you sure you want to delete this deal?"); 
+          if (!confirmed) return; 
+          const { error } = 
+          await supabase.from("deals").delete().eq("id", id); 
+          if (error) { 
+            console.error("Error deleting deal:", error.message); 
+          } 
+          else { 
+            setDeals((prev) => prev.filter((deal) => deal.id !== id)); 
+            } 
+          };
 
   return (
       <div className="p-6">
@@ -202,6 +216,7 @@ export default function CRMBoard() {
             <th className="p-2 text-left">Partner</th>
             <th className="p-2 text-left">Sourcer</th>
             <th className="p-2 text-left">Notes</th>
+            <th className="p-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -209,22 +224,22 @@ export default function CRMBoard() {
             <tr key={deal.id} className="border-t">
               <td className="p-2">{deal.company}</td>
               <td className="p-2">
-  <Select
-    defaultValue={deal.stage}
-    onValueChange={(val) => updateDeal(deal.id, "stage", val)}
-  >
-    <SelectTrigger className={`font-medium ${stageColors[deal.stage] || ""}`}>
-      <SelectValue />
-    </SelectTrigger>
-    <SelectContent>
-      {stageOptions.map((stage) => (
-        <SelectItem key={stage} value={stage}>
-          {stage}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-</td>
+        <Select
+          defaultValue={deal.stage}
+          onValueChange={(val) => updateDeal(deal.id, "stage", val)}
+        >
+          <SelectTrigger className={`font-medium ${stageColors[deal.stage] || ""}`}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {stageOptions.map((stage) => (
+              <SelectItem key={stage} value={stage}>
+                {stage}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </td>
 
               <td className="p-2">
                 {new Date(deal.last_updated).toLocaleDateString()}
@@ -270,6 +285,11 @@ export default function CRMBoard() {
                     updateDeal(deal.id, "notes", e.target.value)
                   }
                 />
+              </td>
+              <td className="py-2 px-3"> 
+                <Button variant="destructive" size="sm" onClick={() => deleteDeal(deal.id)}> 
+                  Delete 
+                </Button> 
               </td>
             </tr>
           ))}
