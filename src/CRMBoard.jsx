@@ -213,8 +213,8 @@ export default function CRMBoard() {
             <th className="p-2 text-left">Company</th>
             <th className="p-2 text-left">Stage</th>
             <th className="p-2 text-left">Last Updated</th>
-            <th className="p-2 text-left">Partner</th>
             <th className="p-2 text-left">Sourcer</th>
+            <th className="p-2 text-left">Partner</th>
             <th className="p-2 text-left">Notes</th>
             <th className="p-2 text-left">Actions</th>
           </tr>
