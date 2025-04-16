@@ -34,8 +34,8 @@ const stageOptions = [
   "Freezer",
   "Dumpster",
 ];
-const sourcerOptions = ["Tom", "Stephen", "Ben", "Jameson", "Intern"];
-const partnerOptions = ["Tom", "Stephen", "Ben"];
+const sourcerOptions = ["Tom", "Stephen", "Ben", "Jameson", "Intern", "Other"];
+const partnerOptions = ["Tom", "Stephen", "Ben", "TBD"];
 
 const stageColors = {
   "Inbound Deals": "bg-lime-300 text-lime-800",
