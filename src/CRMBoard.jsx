@@ -44,7 +44,7 @@ const stageColors = {
   "Partner Call": "bg-purple-300 text-purple-800",
   Memo: "bg-teal-300 text-teal-800",
   IC: "bg-fuchsia-300 text-fuchsia-800",
-  Investment: "bg-green-300 text-green-800",
+  Investment: "bg-lime-600 text-green-900",
   Freezer: "bg-blue-100 text-blue-800",
   Dumpster: "bg-red-400 text-red-800",
 };
