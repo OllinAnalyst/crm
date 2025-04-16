@@ -246,23 +246,6 @@ export default function CRMBoard() {
               </td>
               <td className="p-2">
                 <Select
-                  defaultValue={deal.partner}
-                  onValueChange={(val) => updateDeal(deal.id, "partner", val)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {partnerOptions.map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </td>
-              <td className="p-2">
-                <Select
                   defaultValue={deal.sourcer}
                   onValueChange={(val) => updateDeal(deal.id, "sourcer", val)}
                 >
@@ -273,6 +256,23 @@ export default function CRMBoard() {
                     {sourcerOptions.map((s) => (
                       <SelectItem key={s} value={s}>
                         {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </td>
+              <td className="p-2">
+                <Select
+                  defaultValue={deal.partner}
+                  onValueChange={(val) => updateDeal(deal.id, "partner", val)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {partnerOptions.map((p) => (
+                      <SelectItem key={p} value={p}>
+                        {p}
                       </SelectItem>
                     ))}
                   </SelectContent>
