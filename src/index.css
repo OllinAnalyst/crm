@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 36 64% 94%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
@@ -31,7 +31,7 @@
     --radius: 0.5rem
   }
   .dark {
-    --background: 0 0% 3.9%;
+    --background: 36 64% 94%; /* optional: customize differently */
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -65,4 +65,11 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.montserrat-<uniquifier> {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
 }

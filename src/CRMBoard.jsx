@@ -128,13 +128,13 @@ export default function CRMBoard() {
           const stageA = stageOptions.indexOf(a.stage);
           const stageB = stageOptions.indexOf(b.stage);
           if (stageA !== stageB) return stageA - stageB;
-          return a.company.localeCompare(b.company);
+          return a.last_updated.localeCompare(b.last_updated);
         })
     : [...deals].sort((a, b) => {
         const stageA = stageOptions.indexOf(a.stage);
         const stageB = stageOptions.indexOf(b.stage);
         if (stageA !== stageB) return stageA - stageB;
-        return a.company.localeCompare(b.company);
+        return a.last_updated.localeCompare(b.last_updated);
       });
 
       const deleteDeal = 
